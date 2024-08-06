@@ -1,7 +1,7 @@
-use std::{io::{BufRead, BufReader, Result}, process::Command};
+use std::{io::{BufRead, BufReader}, process::Command};
 
-async fn convert(input: &str, output: &str) -> std::io::Result<()> {
-    let mut cmd = Command::new("ffmmpeg")
+pub(crate) async fn convert(input: &str, output: &str) -> std::io::Result<()> {
+    let mut cmd = Command::new("ffmpeg")
         .args(["-i", input, output])
         .stdout(std::process::Stdio::piped())
         .stderr(std::process::Stdio::piped())
@@ -39,4 +39,22 @@ async fn convert(input: &str, output: &str) -> std::io::Result<()> {
 async fn main() -> std::io::Result<()> {
     convert("demo.mkv", "demo.mp4").await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod test {
+    use crate::convert;
+
+    #[tokio::test]
+    async fn test_conversion() {
+        let input = "demo.mkv";
+        let output = "demo.mp4";
+
+        let con = convert(input, output).await;
+        if let Err(err) = &con {
+            eprintln!("err: {err}")
+        }
+
+        assert!(con.is_ok())
+    }
 }
