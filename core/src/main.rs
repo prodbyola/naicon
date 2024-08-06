@@ -16,7 +16,7 @@ pub(crate) async fn convert(input: &str, output: &str) -> std::io::Result<()> {
     let mut out_lines = out_reader.lines();
     let mut err_lines = err_reader.lines();
 
-    tokio::spawn(async move {
+    let out = tokio::spawn(async move {
         while let Some(line) = out_lines.next() {
             if let Ok(line) = line {
                 println!("stdout: {}", line);
@@ -24,13 +24,16 @@ pub(crate) async fn convert(input: &str, output: &str) -> std::io::Result<()> {
         }
     });
 
-    tokio::spawn(async move {
+    let err = tokio::spawn(async move {
         while let Some(line) = err_lines.next() {
             if let Ok(line) = line {
                 eprintln!("stderr: {}", line);
             }
         }
     });
+
+    out.await?;
+    err.await?;
 
     Ok(())
 }
