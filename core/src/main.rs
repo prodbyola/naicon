@@ -32,8 +32,8 @@ pub(crate) async fn convert(input: &str, output: &str) -> std::io::Result<()> {
         }
     });
 
-    out.await?;
     err.await?;
+    out.await?;
 
     Ok(())
 }
