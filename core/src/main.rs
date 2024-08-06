@@ -1,8 +1,21 @@
-use std::{io::{BufRead, BufReader}, process::Command};
+use std::{io::{BufRead, BufReader, Error}, process::Command};
+
+pub(crate) fn probe(input: &str) -> Result<(), Error> {
+    let cmd = Command::new("ffprobe")
+        .args(["-select_streams", "v:0", input])
+        .output()?;
+
+    let out = String::from_utf8(cmd.stdout).unwrap();
+    let err = String::from_utf8(cmd.stderr).unwrap();
+
+    println!("out: {out}, err: {err}");
+
+    Ok(())
+}
 
 pub(crate) async fn convert(input: &str, output: &str) -> std::io::Result<()> {
     let mut cmd = Command::new("ffmpeg")
-        .args(["-i", input, output])
+        .args(["-i", input, "-progress", "pipe:1", output])
         .stdout(std::process::Stdio::piped())
         .stderr(std::process::Stdio::piped())
         .spawn()?;
@@ -16,24 +29,21 @@ pub(crate) async fn convert(input: &str, output: &str) -> std::io::Result<()> {
     let mut out_lines = out_reader.lines();
     let mut err_lines = err_reader.lines();
 
-    let out = tokio::spawn(async move {
+    tokio::spawn(async move {
         while let Some(line) = out_lines.next() {
             if let Ok(line) = line {
                 println!("stdout: {}", line);
             }
         }
-    });
+    }).await?;
 
-    let err = tokio::spawn(async move {
+    tokio::spawn(async move {
         while let Some(line) = err_lines.next() {
             if let Ok(line) = line {
                 eprintln!("stderr: {}", line);
             }
         }
-    });
-
-    err.await?;
-    out.await?;
+    }).await?;
 
     Ok(())
 }
@@ -46,7 +56,7 @@ async fn main() -> std::io::Result<()> {
 
 #[cfg(test)]
 mod test {
-    use crate::convert;
+    use crate::{convert, probe};
 
     #[tokio::test]
     async fn test_conversion() {
@@ -59,5 +69,11 @@ mod test {
         }
 
         assert!(con.is_ok())
+    }
+
+    #[test]
+    fn test_probe() {
+        let pb = probe("demo.mkv");
+        assert!(pb.is_ok());
     }
 }
