@@ -28,10 +28,10 @@ pub async fn run(input: &str, output: &str) -> std::io::Result<()> {
             if line.starts_with("out_time_us") {
                 let split: Vec<&str> = line.split("=").collect();
 
-                let ds = split.get(1).unwrap_or(&"0");
-                let ps = ds.parse::<f64>().unwrap();
+                let ds = split.get(1).unwrap_or(&"0"); // duration str
+                let pd = ds.parse::<f64>().unwrap(); // parse duration
 
-                let current_duration = ps / 1e6;
+                let current_duration = pd / 1e6;
                 let total_duration = probe.duration;
                 let percent = ((current_duration * 100.0) / total_duration).round();
                 println!("total: {total_duration}, current: {current_duration}, percent: {percent}");
