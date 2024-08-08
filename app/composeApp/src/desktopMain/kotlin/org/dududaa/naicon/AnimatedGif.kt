@@ -1,47 +1,79 @@
 package org.dududaa.naicon
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun AnimatedPlayIcon() {
     val lineColor = Color.White
+    val innerBoxColor = Color.Red
 
-    val innerX = 60F
-    val innerY = 46F
+    val boxHeight = 154.dp
+    val boxWidth = 204.dp
 
+    val ibX = 36.dp
+    val ibY = 20.dp
 
-    Spacer(
+    val borderRadius = 24.dp
+    val borderWidth = 6.dp
+
+    Box(
         modifier = Modifier
-            .drawBehind {
-                drawRoundRect(
-                    topLeft = Offset(innerX, innerY),
-                    color = lineColor,
-                    size = size.copy(
-                        height = size.height - (innerY * 2),
-                        width = size.width - (innerX * 2)
-                    ),
-                    style = Stroke(width = 10F),
-                    cornerRadius = CornerRadius(12F)
-                )
-            }
-            .height(154.dp)
-            .width(204.dp)
+            .height(boxHeight)
+            .width(boxWidth)
             .border(
-                width = 6.dp,
+                width = borderWidth,
                 color = lineColor,
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(borderRadius)
             )
-    )
+    ) {
+        Spacer(
+            Modifier
+                .offset(ibX, ibY)
+                .background(
+                    color = innerBoxColor,
+                    shape = RoundedCornerShape(borderRadius)
+                )
+                .border(
+                    width = borderWidth,
+                    color = lineColor,
+                    shape = RoundedCornerShape(borderRadius)
+                )
+                .drawWithCache {
+
+                    // play button offset
+                    val x = 92F
+                    val y = 66F
+
+                    // play button dimensions
+                    val width = size.width - (x * 2)
+                    val height = size.height - (y * 2)
+
+                    // draw play button
+                    val path = Path()
+                    path.moveTo(x, y)
+                    path.lineTo(x + width, size.height / 2)
+                    path.lineTo(x, height + y)
+                    path.close()
+
+                    onDrawBehind {
+                        drawPath(path, lineColor)
+                    }
+                }
+                .width(boxWidth - (ibX * 2))
+                .height(boxHeight - (ibY * 2))
+        )
+    }
 }

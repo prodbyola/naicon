@@ -35,7 +35,6 @@ fun getAsyncImageLoader(context: PlatformContext) =
 @Preview
 fun App() {
     val bgOverlayAlpha = .8F
-    val coroutineScope = rememberCoroutineScope()
 
     MaterialTheme {
         setSingletonImageLoaderFactory { context ->
