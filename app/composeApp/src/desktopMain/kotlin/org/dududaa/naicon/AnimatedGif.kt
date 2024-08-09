@@ -30,6 +30,8 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -66,7 +68,8 @@ private fun PlayerBox() {
     val hsXInit = ibuPadding + hsPadding
     val hsX = remember { Animatable(hsXInit) }
 
-    val vsX = remember { Animatable(ibuPadding.toFloat() + 60) } // vertical stroke x-offset
+    val vsXInit = ibuPadding.toFloat() + 60
+    val vsX = remember { Animatable(vsXInit) } // vertical stroke x-offset
 
     val borderRadius = 24.dp
     val borderWidth = 6.dp
@@ -77,55 +80,72 @@ private fun PlayerBox() {
 
     LaunchedEffect("animationKey") {
         launch {
-            // move inner box up
-            ibY.animateTo(-ibMove, animationSpec = tween(initialAnimationDuration))
+            while (true) {
+                // animate parameters
+                val animation1 = async {
+                    // move inner box up
+                    ibY.animateTo(-ibMove, animationSpec = tween(initialAnimationDuration))
 
-            // scale inner box out
-            ibScale.animateTo(.8f, animationSpec = tween(ibScaleDuration))
-            ibScale.animateTo(1f, animationSpec = tween(ibScaleDuration))
+                    // scale inner box out
+                    ibScale.animateTo(.8f, animationSpec = tween(ibScaleDuration))
+                    ibScale.animateTo(1f, animationSpec = tween(ibScaleDuration))
 
-            delay(500)
+                    delay(500)
 
-            // restore inner box
-            ibY.animateTo(20f, animationSpec = tween(initialAnimationDuration))
+                    // restore inner box
+                    ibY.animateTo(20f, animationSpec = tween(initialAnimationDuration))
 
-        }
+                }
 
-        launch {
-            // drag underlay down
-            ibuY.animateTo(
-                IB_UNDERLAY_Y - 180,
-                animationSpec = tween(initialAnimationDuration)
-            )
+                val animation2 = async {
+                    // drag underlay down
+                    ibuY.animateTo(
+                        IB_UNDERLAY_Y - 180,
+                        animationSpec = tween(initialAnimationDuration)
+                    )
 
-            delay(1000)
+                    delay(1000)
 
-            // drag underlay up
-            ibuY.animateTo(
-                IB_UNDERLAY_Y,
-                animationSpec = tween(initialAnimationDuration)
-            )
+                    // drag underlay up
+                    ibuY.animateTo(
+                        IB_UNDERLAY_Y,
+                        animationSpec = tween(initialAnimationDuration)
+                    )
+                }
 
-        }
+                val animation3 = async {
+                    // expand horizontal stroke
+                    hsX.animateTo(
+                        hsX.value - (hsPadding - 22),
+                        animationSpec = tween(initialAnimationDuration)
+                    )
 
-        launch {
-            // expand horizontal stroke
-            hsX.animateTo(
-                hsX.value - (hsPadding - 22),
-                animationSpec = tween(initialAnimationDuration)
-            )
+                    // move vertical stroke
+                    vsX.animateTo(
+                        hsX.value + 248,
+                        animationSpec = tween(initialAnimationDuration)
+                    )
 
-            // move vertical stroke
-            vsX.animateTo(
-                hsX.value + 248,
-                animationSpec = tween(initialAnimationDuration)
-            )
+                    // collapse horizontal stroke
+                    hsX.animateTo(
+                        hsXInit,
+                        animationSpec = tween(initialAnimationDuration)
+                    )
+                }
 
-            // collapse horizontal stroke
-            hsX.animateTo(
-                hsXInit,
-                animationSpec = tween(initialAnimationDuration)
-            )
+                // run all animations asynchronously and wait for
+                // them to finish
+                awaitAll(animation1, animation2, animation3)
+
+                // set all parameters to their default values
+                ibY.snapTo(20f)
+                ibScale.snapTo(1f)
+                ibuY.snapTo(IB_UNDERLAY_Y)
+                hsX.snapTo(hsXInit)
+                vsX.snapTo(vsXInit)
+
+                delay(500)
+            }
         }
     }
 
@@ -185,8 +205,8 @@ private fun PlayerBox() {
                 .width(BOX_WIDTH.dp - (ibX.dp * 2))
                 .height(ibHeight.value.dp)
                 .scale(ibScale.value)
-        ){
-            scale(ibScale.value){
+        ) {
+            scale(ibScale.value) {
                 // box background
                 drawRoundRect(
                     color = innerBoxColor,
