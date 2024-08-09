@@ -3,6 +3,7 @@ package org.dududaa.naicon
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,7 +40,11 @@ private val LINE_COLOR = Color.White
 private const val BOX_HEIGHT = 154
 private const val BOX_WIDTH = 216
 
-private const val IB_UNDERLAY_Y = 300f
+private const val UNDERLAY_Y = 300f
+
+private val UNDERLAY_COLOR = Color(0xFFFC9E4F)
+private val INNER_BOX_COLOR = Color(0xFFF4442E)
+private val BACKGROUND_COLOR = Color(0xFFF2F3AE)
 
 @Composable
 fun AnimatedPlayIcon() {
@@ -51,8 +56,6 @@ fun AnimatedPlayIcon() {
 
 @Composable
 private fun PlayerBox() {
-    val innerBoxColor = Color.Red
-
     // inner box values
     val ibX = 40f
     val ibY = remember { Animatable(20f) }
@@ -60,7 +63,7 @@ private fun PlayerBox() {
     val ibScale = remember { Animatable(1f) }
 
     // inner box underlay values
-    val ibuY = remember { Animatable(IB_UNDERLAY_Y) }
+    val ibuY = remember { Animatable(UNDERLAY_Y) }
     val ibuPadding = 48
 
     val hsPadding = 44f
@@ -100,7 +103,7 @@ private fun PlayerBox() {
                 val animation2 = async {
                     // drag underlay down
                     ibuY.animateTo(
-                        IB_UNDERLAY_Y - 180,
+                        UNDERLAY_Y - 180,
                         animationSpec = tween(initialAnimationDuration)
                     )
 
@@ -108,7 +111,7 @@ private fun PlayerBox() {
 
                     // drag underlay up
                     ibuY.animateTo(
-                        IB_UNDERLAY_Y,
+                        UNDERLAY_Y,
                         animationSpec = tween(initialAnimationDuration)
                     )
                 }
@@ -140,7 +143,7 @@ private fun PlayerBox() {
                 // set all parameters to their default values
                 ibY.snapTo(20f)
                 ibScale.snapTo(1f)
-                ibuY.snapTo(IB_UNDERLAY_Y)
+                ibuY.snapTo(UNDERLAY_Y)
                 hsX.snapTo(hsXInit)
                 vsX.snapTo(vsXInit)
 
@@ -171,7 +174,7 @@ private fun PlayerBox() {
 
                     // draw box underlay
                     drawRoundRect(
-                        color = LINE_COLOR.copy(alpha = .4f),
+                        color = UNDERLAY_COLOR.copy(alpha = .4f),
                         topLeft = Offset(ibuPadding.toFloat(), -ibuY.value),
                         size = Size(width = width, height = size.height),
                         cornerRadius = CornerRadius(64f)
@@ -196,6 +199,10 @@ private fun PlayerBox() {
                     )
                 }
                 .fillMaxSize()
+                .background(
+                    color = BACKGROUND_COLOR.copy(alpha = .2f),
+                    shape = RoundedCornerShape(borderRadius)
+                )
         )
 
         // Inner Box
@@ -209,7 +216,7 @@ private fun PlayerBox() {
             scale(ibScale.value) {
                 // box background
                 drawRoundRect(
-                    color = innerBoxColor,
+                    color = INNER_BOX_COLOR,
                     cornerRadius = CornerRadius(borderRadius.value + 12)
                 )
 
@@ -235,7 +242,7 @@ private fun PlayerBox() {
                 path.lineTo(x, height + y)
                 path.close()
 
-                drawPath(path, LINE_COLOR)
+                drawPath(path, Color.White)
 
 
             }
