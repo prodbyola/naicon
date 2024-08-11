@@ -9,11 +9,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -42,10 +43,6 @@ private const val BOX_WIDTH = 216
 
 private const val UNDERLAY_Y = 300f
 
-private val UNDERLAY_COLOR = Color(0xFFFC9E4F)
-private val INNER_BOX_COLOR = Color(0xFFF4442E)
-private val BACKGROUND_COLOR = Color(0xFFF2F3AE)
-
 @Composable
 fun AnimatedPlayIcon() {
     Column(verticalArrangement = Arrangement.Center) {
@@ -56,6 +53,11 @@ fun AnimatedPlayIcon() {
 
 @Composable
 private fun PlayerBox() {
+    val colorScheme = MaterialTheme.colorScheme
+    val primaryColor = colorScheme.primary
+    val secondaryColor = colorScheme.secondary
+    val surfaceColor = colorScheme.surface
+
     // inner box values
     val ibX = 40f
     val ibY = remember { Animatable(20f) }
@@ -174,7 +176,7 @@ private fun PlayerBox() {
 
                     // draw box underlay
                     drawRoundRect(
-                        color = UNDERLAY_COLOR.copy(alpha = .4f),
+                        color = secondaryColor.copy(alpha = .4f),
                         topLeft = Offset(ibuPadding.toFloat(), -ibuY.value),
                         size = Size(width = width, height = size.height),
                         cornerRadius = CornerRadius(64f)
@@ -200,7 +202,7 @@ private fun PlayerBox() {
                 }
                 .fillMaxSize()
                 .background(
-                    color = BACKGROUND_COLOR.copy(alpha = .2f),
+                    color = surfaceColor.copy(alpha = .2f),
                     shape = RoundedCornerShape(borderRadius)
                 )
         )
@@ -208,7 +210,7 @@ private fun PlayerBox() {
         // Inner Box
         Canvas(
             Modifier
-                .absoluteOffset(ibX.dp, ibY.value.dp)
+                .offset(ibX.dp, ibY.value.dp)
                 .width(BOX_WIDTH.dp - (ibX.dp * 2))
                 .height(ibHeight.value.dp)
                 .scale(ibScale.value)
@@ -216,7 +218,7 @@ private fun PlayerBox() {
             scale(ibScale.value) {
                 // box background
                 drawRoundRect(
-                    color = INNER_BOX_COLOR,
+                    color = primaryColor,
                     cornerRadius = CornerRadius(borderRadius.value + 12)
                 )
 
