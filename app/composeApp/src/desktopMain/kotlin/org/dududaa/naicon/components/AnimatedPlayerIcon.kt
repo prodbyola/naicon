@@ -1,4 +1,4 @@
-package org.dududaa.naicon
+package org.dududaa.naicon.components
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween

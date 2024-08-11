@@ -1,6 +1,5 @@
 package org.dududaa.naicon
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
@@ -79,7 +78,9 @@ val Typography = Typography(
 private val DarkColorScheme = darkColorScheme(
     primary = Color(0xFFF4442E),
     secondary = Color(0xFFFC9E4F),
+    tertiary = Color(0xFFFFA630),
     surface = Color(0xFFF2F3AE),
+    surfaceVariant = Color(0xFFD7E8BA),
     onSurface = Color.White,
     background = Color(0xFF182538),
 )
