@@ -15,7 +15,6 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 import org.dududaa.naicon.components.BackgroundImage
 import org.dududaa.naicon.components.BackgroundOverlay
-import org.dududaa.naicon.components.FilePicker
 import org.dududaa.naicon.components.HomeScreen
 
 fun getAsyncImageLoader(context: PlatformContext) =
