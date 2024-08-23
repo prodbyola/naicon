@@ -5,6 +5,7 @@ use tokio::{
 
 use crate::probe::Probe;
 
+/// Run conversion of an input file to an output file
 pub async fn run(input: &str, output: &str) -> std::io::Result<()> {
     let mut cmd = Command::new("ffmpeg")
         .args(["-i", input, "-progress", "pipe:1", output])

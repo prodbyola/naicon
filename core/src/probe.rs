@@ -6,6 +6,8 @@ use std::{
 use serde_json::{Map, Value};
 
 #[derive(Debug)]
+/// A wrapper for [FFProbe](https://www.ffmpeg.org/ffprobe.html), which is a libray that
+/// gathers information from multimedia streams and prints it in human- and machine-readable fashion.
 pub struct Probe {
     pub filename: String,
     pub format: String,
@@ -16,6 +18,7 @@ pub struct Probe {
 }
 
 impl Probe {
+    /// Create a new instance of [Probe] for an input file(name).
     pub fn new(input: &str) -> std::io::Result<Self> {
         let cmd = Command::new("ffprobe")
             .args([
@@ -43,15 +46,15 @@ impl Probe {
             .unwrap_or_default();
         let size = format["size"]
             .as_str()
-            .map(|s| s.parse::<usize>().unwrap())
+            .map(|s| s.parse::<usize>().unwrap_or_default())
             .unwrap_or_default();
         let duration = format["duration"]
             .as_str()
-            .map(|s| s.parse::<f64>().unwrap())
+            .map(|s| s.parse::<f64>().unwrap_or_default())
             .unwrap_or_default();
         let bitrate = format["bit_rate"]
             .as_str()
-            .map(|s| s.parse::<usize>().unwrap())
+            .map(|s| s.parse::<usize>().unwrap_or_default())
             .unwrap_or_default();
 
         let tags = format["tags"].as_object().unwrap();
@@ -72,6 +75,7 @@ impl Probe {
         Ok(probe)
     }
 
+    /// Parses raw data into JSON Map type.
     fn parse_data(data: Vec<u8>) -> std::io::Result<Map<String, Value>> {
         match String::from_utf8(data) {
             Ok(data) => {
