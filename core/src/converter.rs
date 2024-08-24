@@ -5,10 +5,25 @@ use tokio::{
 
 use crate::probe::Probe;
 
+pub struct ConversionOption {
+    pub input: String,
+    pub output: String,
+}
+
+impl<'a> IntoIterator for &'a ConversionOption {
+    type Item = &'a str;
+
+    type IntoIter = std::array::IntoIter<&'a str, 5>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        ["-i", &self.input, "-progress", "pipe:1", &self.output].into_iter()
+    }
+}
+
 /// Run conversion of an input file to an output file
-pub async fn run(input: &str, output: &str) -> std::io::Result<()> {
+pub async fn run(opts: ConversionOption) -> std::io::Result<()> {
     let mut cmd = Command::new("ffmpeg")
-        .args(["-i", input, "-progress", "pipe:1", output])
+        .args(opts.into_iter())
         .stdout(std::process::Stdio::piped())
         .stderr(std::process::Stdio::piped())
         .spawn()?;
@@ -22,7 +37,7 @@ pub async fn run(input: &str, output: &str) -> std::io::Result<()> {
     let mut out_lines = out_reader.lines();
     let mut err_lines = err_reader.lines();
 
-    let probe = Probe::new(input)?;
+    let probe = Probe::new(&opts.input)?;
 
     tokio::spawn(async move {
         while let Some(line) = out_lines.next_line().await.unwrap() {
@@ -53,14 +68,16 @@ pub async fn run(input: &str, output: &str) -> std::io::Result<()> {
 
 #[cfg(test)]
 mod test {
-    use crate::converter;
+    use crate::converter::{self, ConversionOption};
 
     #[tokio::test]
     async fn test_converter() {
-        let input = "demo.mkv";
-        let output = "demo.mp4";
+        let input = "demo.mkv".to_string();
+        let output = "demo.mp4".to_string();
 
-        let con = converter::run(input, output).await;
+        let opts = ConversionOption { input, output };
+
+        let con = converter::run(opts).await;
         if let Err(err) = &con {
             eprintln!("err: {err}")
         }
