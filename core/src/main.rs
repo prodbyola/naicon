@@ -5,10 +5,15 @@ mod probe;
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
-    let input = "demo.mkv".to_string();
-    let output = "demo.mp4".to_string();
+    let input = "demo.mkv";
+    let output = "demo.mp4";
 
-    let opts = ConversionOption { input, output };
+    let opts = ConversionOption {
+        input,
+        output,
+        ..Default::default()
+    };
+    
     converter::run(opts).await?;
     Ok(())
 }
